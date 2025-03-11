@@ -7,6 +7,7 @@ import click
 
 """
 Gets match data from the OpenDota API and stores it in Parquet format.
+Strategy: Use the OpenDota API call: /publicMatches to get public match data.
 """
 
 @dataclass
@@ -20,12 +21,10 @@ class DataFetcher:
         if self.output_path.exists():
             self.match_data = pd.read_parquet(self.output_path).to_dict(orient="records")
             click.secho(
-                f"Importing dataset from {self.output_path},",
-                fg="yellow"
+                f"Importing dataset from {self.output_path},", fg="yellow"
             )
             click.secho(
-                f"with {len(self.match_data)} matches, appending new data.",
-                fg="yellow"
+                f"with {len(self.match_data)} matches, appending new data.", fg="yellow"
             )
         else:
             self.match_data = []
@@ -35,7 +34,7 @@ class DataFetcher:
         """
         Converts the OpenDota hero ID to the hero name.
         """
-        response = requests.get(self.base_url + "/heroes").json()
+        response = requests.get(f"{self.base_url}/heroes?api_key={KEY}").json()
         return {hero['id']: hero['localized_name'] for hero in response}
 
     def _filter_by_rank(self, rank_tier: int) -> dict:
@@ -44,17 +43,27 @@ class DataFetcher:
         """
         raise NotImplementedError
 
-    def _get_pub_data(self) -> list:
-        response = requests.get(self.base_url + "/publicMatches")
+    def _get_pub_data(self, use_key=False) -> list:
+        """
+        Retrieves public match data using the API key.
+        """
+        if use_key:
+            response = requests.get(f"{self.base_url}/publicMatches?api_key={KEY}")
+        else:
+            response = requests.get(f"{self.base_url}/publicMatches")
         if response.status_code == 200:
             return response.json()
         return None
 
     def _write_to_parquet(self, new_match_data: list) -> None:
         """
-        Appends new match data to the existing dataset and writes it to a Parquet file.
+        Appends new match data to the existing dataset, deduplicates by match_id,
+        and writes it to a Parquet file.
         """
         self.match_data.extend(new_match_data)
+        # Deduplicate using match_id as the key.
+        unique_matches = {match['match_id']: match for match in self.match_data}
+        self.match_data = list(unique_matches.values())
         df = pd.DataFrame(self.match_data)
         df.to_parquet(self.output_path, index=False)
         click.secho(
@@ -66,7 +75,11 @@ class DataFetcher:
         """
         Checks out the dataset.
         """
-        click.secho(f"Found {len(self.match_data)} matches.", fg="cyan")
+        if self.match_data:
+            ids = [match['match_id'] for match in self.match_data]
+            click.secho(f"Duplicates: {len(ids) - len(set(ids))}", fg="cyan")
+        else:
+            click.secho("Dataset is empty.", fg="cyan")
 
     def _df_to_dict(self) -> dict:
         """
@@ -74,19 +87,26 @@ class DataFetcher:
         """
         return {match['match_id']: match for match in self.match_data}
 
-    def _verify_no_duplicates(self, new_match_id) -> bool:
+    def _is_duplicate(self, new_match_id, new_matches: list) -> bool:
         """
-        Verifies that there are no duplicate matches in the new data.
+        Checks if a match with new_match_id already exists in either the stored dataset or the new_matches list.
         """
-        match_ids = set(match['match_id'] for match in self.match_data)
-        return new_match_id not in match_ids
+        if any(match['match_id'] == new_match_id for match in self.match_data):
+            return True
+        if any(match['match_id'] == new_match_id for match in new_matches):
+            return True
+        return False
 
-    def analyze_pub_data(self, N_matches: int) -> None:
+    def analyze_pub_data(self, N_matches: int, verbose: bool = False) -> None:
+        """
+        Collects public match data until N_matches unique matches are acquired.
+        """
         new_match_data = []
         collected = 0
+        duplicates = 0
         with click.progressbar(length=N_matches, label="Collecting new matches") as bar:
             while collected < N_matches:
-                pub_data = self._get_pub_data()
+                pub_data = self._get_pub_data()  # List of public matches
                 if pub_data is None:
                     click.secho("No public data retrieved", fg="red")
                     return
@@ -94,8 +114,8 @@ class DataFetcher:
                 for match in pub_data:
                     if collected >= N_matches:
                         break
-                    # Check if the match is already in the dataset.
-                    if not self._verify_no_duplicates(match["match_id"]):
+                    if self._is_duplicate(match["match_id"], new_match_data):
+                        duplicates += 1
                         continue
 
                     radiant_draft = [self.hero_id_to_name.get(hero_id, f"Unknown({hero_id})")
@@ -113,9 +133,15 @@ class DataFetcher:
                     collected += 1
                     bar.update(1)
         self._write_to_parquet(new_match_data)
+        if verbose:
+            click.secho(f"Found {duplicates} duplicates.", fg="yellow")
 
 
 if __name__ == "__main__":
     base_url = "https://api.opendota.com/api"
     fetcher = DataFetcher(base_url)
-    fetcher.analyze_pub_data(N_matches=1000)
+    fetcher.analyze_pub_data(
+        N_matches=100, 
+        verbose=True
+    )
+    #fetcher.checkout_dataset()

@@ -1,3 +1,3 @@
-from .config import KEY
+from .config import KEY, HERO_MAP
 
-__all__ = ["KEY"]
+__all__ = ["KEY", "HERO_MAP"]
