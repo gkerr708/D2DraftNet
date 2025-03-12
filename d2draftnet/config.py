@@ -10,7 +10,7 @@ KEY = "21bcc3a2-28fc-4331-a1ad-5e68401b8f71"
 # Smart thing to write the same thing twice.
 PROJECT_DIR = Path(__file__).parent.parent
 MATCH_DATA_PATH = PROJECT_DIR / "data" / "match_data.parquet"
-TRAINED_MODEL_PATH = PROJECT_DIR / "models" / f"{current_patch}_model.pth"
+MODEL_PATH = PROJECT_DIR / "models" / f"{current_patch}_model.pth"
 
 # Define the list of heroes
 HEROS_ = ['Anti-Mage', 'Axe', 'Bane', 'Bloodseeker', 'Crystal Maiden', 'Drow Ranger', 'Earthshaker', 'Juggernaut', 'Mirana', 'Morphling', 'Shadow Fiend', 

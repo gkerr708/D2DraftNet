@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 from sklearn.metrics import accuracy_score
 import torch.nn as nn
 from pathlib import Path
-from config import HEROS, MATCH_DATA_PATH, TRAINED_MODEL_DIRECTORY, TRAINED_MODEL_PATH, load_data
+from config import HEROS, MATCH_DATA_PATH, TRAINED_MODEL_DIRECTORY, MODEL_PATH, load_data
 from embedding_model import Dota2DraftDataset, DraftPredictionNN
 import matplotlib.pyplot as plt
 
@@ -160,7 +160,7 @@ class ModelTraining:
 
     def save_model(self):
         """Save the trained model to a file."""
-        filepath = TRAINED_MODEL_PATH
+        filepath = MODEL_PATH
         if not filepath.exists():
             torch.save(self.model.state_dict(), filepath)
             print(f"Model saved to {filepath}")

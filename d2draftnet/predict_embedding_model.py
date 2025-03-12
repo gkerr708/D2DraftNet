@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from embedding_model import DraftPredictionNN, load_model
-from config import TRAINED_MODEL_PATH, HERO_MAP, EMBEDDING_DIM, LAYERS, NUM_HEROS
+from config import MODEL_PATH, HERO_MAP, EMBEDDING_DIM, LAYERS, NUM_HEROS
 
 def get_hero_indices(hero_list):
     """Convert hero names to model input indices."""
@@ -11,7 +11,7 @@ def get_hero_indices(hero_list):
 def predict_draft(radiant_heroes, dire_heroes):
     """Loads the trained model and predicts the draft outcome."""
     model = DraftPredictionNN(num_heroes=NUM_HEROS, embedding_dim=EMBEDDING_DIM, dropout_prob=1e-3, layers=LAYERS)
-    model.load_state_dict(torch.load(TRAINED_MODEL_PATH))
+    model.load_state_dict(torch.load(MODEL_PATH))
     model.eval()
     
     # Convert hero names to indices
