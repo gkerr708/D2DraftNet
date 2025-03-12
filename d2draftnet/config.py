@@ -8,9 +8,9 @@ KEY = "21bcc3a2-28fc-4331-a1ad-5e68401b8f71"
 
 # Define constants for shared configurations
 # Smart thing to write the same thing twice.
-MATCH_DATA_PATH = Path(__file__).parent.parent / "match_data.parquet"
-
-TRAINED_MODEL_PATH = Path(r"C:\Users\gkerr\code\D2DraftNet-Models\7_37e_model.pth")
+PROJECT_DIR = Path(__file__).parent.parent
+MATCH_DATA_PATH = PROJECT_DIR / "data" / "match_data.parquet"
+TRAINED_MODEL_PATH = PROJECT_DIR / "models" / f"{current_patch}_model.pth"
 
 # Define the list of heroes
 HEROS_ = ['Anti-Mage', 'Axe', 'Bane', 'Bloodseeker', 'Crystal Maiden', 'Drow Ranger', 'Earthshaker', 'Juggernaut', 'Mirana', 'Morphling', 'Shadow Fiend', 

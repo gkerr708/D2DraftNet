@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset
-from config import HERO_MAP
+from .config import HERO_MAP
 
 # Dataset class
 class Dota2DraftDataset(Dataset):
@@ -80,7 +80,7 @@ def load_model(filepath, num_heroes, embedding_dim, dropout_prob, layers):
 if __name__ == "__main__":
 
     # Test the model and dataset class
-    from config import load_data
+    from .config import load_data
 
     # Load the dataset
     data = load_data()

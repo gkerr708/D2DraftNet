@@ -1,23 +1,21 @@
-[tool.poetry]
+[project]
 name = "d2draftnet"
-version = "0.1.0"
-description = "Dota 2 Draft Prediction Model"
-authors = ["gkerr708 <gkerr708@gmail.com>"]
-readme = "README.md"
-packages = [{ include = "d2draftnet" }]  # Ensure only this package is included
+version = "0.1.1"
+description = ""
+authors = [
+    {name = "gkerr708",email = "gkerr708@gmail.com"}
+]
+readme = ""
+requires-python = ">=3.10"
+dependencies = [
+    "torch (>=2.6.0,<3.0.0)",
+    "pandas (>=2.2.3,<3.0.0)",
+    "beautifulsoup4 (>=4.13.3,<5.0.0)",
+    "click (>=8.1.8,<9.0.0)",
+    "pyarrow (>=19.0.1,<20.0.0)",
+    "fastparquet (>=2024.11.0,<2025.0.0)"
+]
 
-# ✅ Correct way to exclude files
-exclude = ["models/*", "checkpoints/*", "*.pth", "*.pt", "*.bin"]
-
-[tool.poetry.dependencies]
-python = ">=3.10,<4.0"
-click = ">=8.1.8,<9.0.0"
-pandas = ">=2.2.3,<3.0.0"
-requests = ">=2.32.3,<3.0.0"
-pyarrow = ">=19.0.1,<20.0.0"
-fastparquet = ">=2024.11.0,<2025.0.0"
-torch = ">=2.0.0,<3.0.0"
-flask = ">=2.0.0,<3.0.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
