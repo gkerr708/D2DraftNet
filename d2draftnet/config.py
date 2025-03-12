@@ -10,7 +10,7 @@ KEY = "21bcc3a2-28fc-4331-a1ad-5e68401b8f71"
 # Smart thing to write the same thing twice.
 PROJECT_DIR = Path(__file__).parent.parent
 MATCH_DATA_PATH = PROJECT_DIR / "data" / "match_data.parquet"
-MODEL_PATH = PROJECT_DIR / "models" / f"{current_patch}_model.pth"
+MODEL_PATH = PROJECT_DIR / "d2draftnet" / "models" / f"{current_patch}_model.pth"
 
 # Define the list of heroes
 HEROS_ = ['Anti-Mage', 'Axe', 'Bane', 'Bloodseeker', 'Crystal Maiden', 'Drow Ranger', 'Earthshaker', 'Juggernaut', 'Mirana', 'Morphling', 'Shadow Fiend', 
@@ -40,3 +40,7 @@ def load_data():
     Load the dataset from the Parquet file.
     """
     return pd.read_parquet(MATCH_DATA_PATH)
+
+if __name__ == "__main__":
+    directories = [PROJECT_DIR, MATCH_DATA_PATH, MODEL_PATH]
+    _= [print(f"{d.exists()} - {d}") for d in directories]
