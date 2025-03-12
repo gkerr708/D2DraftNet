@@ -1,6 +1,6 @@
 [project]
 name = "d2draftnet"
-version = "0.1.1"
+version = "0.1.2"
 description = ""
 authors = [
     {name = "gkerr708",email = "gkerr708@gmail.com"}
