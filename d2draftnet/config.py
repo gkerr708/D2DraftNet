@@ -5,7 +5,8 @@ import pandas as pd
 current_patch_for_model = "7_37e"
 current_patch_for_parquet = "7_38b"
 
-KEY = "21bcc3a2-28fc-4331-a1ad-5e68401b8f71"
+#KEY = "21bcc3a2-28fc-4331-a1ad-5e68401b8f71"
+KEY = None
 
 # Define constants for shared configurations
 # Smart thing to write the same thing twice.
