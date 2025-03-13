@@ -2,15 +2,16 @@ from pathlib import Path
 import pandas as pd
 
 # Define the current patch
-current_patch = "7_37e"
+current_patch_for_model = "7_37e"
+current_patch_for_parquet = "7_38b"
 
 KEY = "21bcc3a2-28fc-4331-a1ad-5e68401b8f71"
 
 # Define constants for shared configurations
 # Smart thing to write the same thing twice.
 PROJECT_DIR = Path(__file__).parent.parent
-MATCH_DATA_PATH = PROJECT_DIR / "data" / "match_data.parquet"
-MODEL_PATH = PROJECT_DIR / "d2draftnet" / "models" / f"{current_patch}_model.pth"
+MATCH_DATA_PATH = PROJECT_DIR / "data" / f"{current_patch_for_parquet}_match_data.parquet"
+MODEL_PATH = PROJECT_DIR / "d2draftnet" / "models" / f"{current_patch_for_model}_model.pth"
 
 # Define the list of heroes
 HEROS_ = ['Anti-Mage', 'Axe', 'Bane', 'Bloodseeker', 'Crystal Maiden', 'Drow Ranger', 'Earthshaker', 'Juggernaut', 'Mirana', 'Morphling', 'Shadow Fiend', 
