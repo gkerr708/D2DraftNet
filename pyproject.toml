@@ -14,7 +14,9 @@ dependencies = [
     "click (>=8.1.8,<9.0.0)",
     "pyarrow (>=19.0.1,<20.0.0)",
     "fastparquet (>=2024.11.0,<2025.0.0)",
-    "requests (>=2.32.3,<3.0.0)"
+    "requests (>=2.32.3,<3.0.0)",
+    "selenium (>=4.29.0,<5.0.0)",
+    "webdriver-manager (>=4.0.2,<5.0.0)"
 ]
 
 

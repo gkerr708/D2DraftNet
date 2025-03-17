@@ -1,20 +1,10 @@
-"""
-OpenDota API Match Collection – Paginated Method
-
-• Unlike the previous method that only fetched the latest matches, this version uses pagination
-  (via the `less_than_match_id` parameter) to traverse older matches.
-• Designed to collect a specified number of valid matches (each with exactly 5 picks per team).
-• Supports filtering by match type (pro or pub) and an optional public match rank tier filter.
-• Stores collected match records in a Parquet file.
-• Verbose mode provides detailed progress and debugging output.
-"""
-
 import os
 import time
 import click
 import requests
 import pandas as pd
 from d2draftnet.config import MATCH_DATA_PATH, KEY
+from d2draftnet.collect_match_ids import request_match_ids  # Import your match ID collector
 
 def get_api_config(key):
     """
@@ -26,16 +16,6 @@ def get_api_config(key):
     - Premium Tier (key provided):
          * Call Limit: Unlimited
          * Rate Limit: 1200 calls per minute
-    
-    Ranks are represented by integers 
-        (10-15: Herald, 
-         20-25: Guardian, 
-         30-35: Crusader, 
-         40-45: Archon, 
-         50-55: Legend, 
-         60-65: Ancient, 
-         70-75: Divine, 
-         80-85: Immortal)
     """
     if key is None:
         return {"call_limit": 2000, "rate_limit": 60}
@@ -95,11 +75,11 @@ def cli():
 @click.option("--limit", default=10, help="Number of valid matches to process.")
 @click.option("--match-type", default="pub", type=click.Choice(["pro", "pub"], case_sensitive=False),
               help="Type of match to process: 'pro' or 'pub'.")
-@click.option("--pub-rank", default=45, type=int, help="Rank tier filter for public matches (only applies if match-type is 'pub').")
+@click.option("--pub-rank", default=30, type=int, help="Rank tier filter for public matches (only applies if match-type is 'pub').")
 @click.option("--verbose", is_flag=True, help="Enable verbose debugging output.")
 def collect(limit, match_type, pub_rank, verbose):
     """
-    Collect match data from the OpenDota API using pagination until a specified number of valid matches is reached.
+    Collect match data from the OpenDota API using a pre-collected list of match IDs.
     """
     df_existing = load_existing_data(verbose)
     existing_match_ids = set(df_existing["match_id"]) if not df_existing.empty else set()
@@ -108,85 +88,60 @@ def collect(limit, match_type, pub_rank, verbose):
     delay = 60 / api_config["rate_limit"]
     hero_map = get_open_dota_hero_map()
     
-    # Choose the appropriate endpoint.
-    if match_type.lower() == "pro":
-        endpoint = "https://api.opendota.com/api/proMatches"
-    else:
-        endpoint = "https://api.opendota.com/api/publicMatches"
-    
+    # Retrieve match IDs using the external function.
     if verbose:
-        click.echo(f"Fetching matches from endpoint: {endpoint}")
+        click.echo("Fetching match IDs using request_match_ids function.")
+    match_ids = request_match_ids(limit, verbose=1)
     
     records = []
     api_calls = 0
-    last_match_id = None
 
-    # Pagination: continue until the desired number of valid matches is collected.
-    while len(records) < limit:
-        params = {}
-        if last_match_id:
-            params["less_than_match_id"] = last_match_id
-            if verbose:
-                click.echo(f"Fetching matches with less_than_match_id={last_match_id}")
-        response = requests.get(endpoint, params=params)
-        if response.status_code != 200:
-            click.echo("Error fetching matches from OpenDota API")
+    for match_id in match_ids:
+        if api_calls >= api_config["call_limit"]:
+            click.echo("Daily call limit reached.")
             break
-
-        matches = response.json()
-        if not matches:
+        if match_id in existing_match_ids:
             if verbose:
-                click.echo("No more matches available from the API.")
+                click.echo(f"Skipping match {match_id}: already exists.")
+            continue
+
+        match_data = get_match_details(match_id)
+        api_calls += 1
+        if not match_data or "picks_bans" not in match_data:
+            if verbose:
+                click.echo(f"Skipping match {match_id}: no picks_bans data.")
+            continue
+
+        if match_type.lower() == "pub" and pub_rank is not None:
+            if match_data.get("rank_tier") != pub_rank:
+                if verbose:
+                    click.echo(f"Skipping match {match_id}: rank_tier {match_data.get('rank_tier')} does not equal {pub_rank}.")
+                continue
+
+        radiant_picks, dire_picks, winner = extract_draft(match_data, hero_map)
+        if radiant_picks is None:
+            if verbose:
+                click.echo(f"Skipping match {match_id}: invalid draft (not exactly 5 picks per team).")
+            continue
+
+        start_time = match_data.get("start_time")
+        match_date = pd.to_datetime(start_time, unit="s") if start_time else None
+
+        records.append({
+            "date": match_date,
+            "match_id": match_id,
+            "match_type": match_type.lower(),
+            "winner": winner,
+            "radiant_draft": radiant_picks,
+            "dire_draft": dire_picks,
+        })
+        if verbose:
+            found = len(records)
+            percent = found / limit * 100
+            click.echo(f"Progress: {found}/{limit} valid matches found ({percent:.1f}%).")
+        time.sleep(delay)
+        if len(records) >= limit:
             break
-
-        last_match_id = min(match["match_id"] for match in matches)
-
-        for match in matches:
-            if len(records) >= limit:
-                break
-            if api_calls >= api_config["call_limit"]:
-                click.echo("Daily call limit reached.")
-                break
-            match_id = match.get("match_id")
-            if match_id in existing_match_ids:
-                if verbose:
-                    click.echo(f"Skipping match {match_id}: already exists.")
-                continue
-            match_data = get_match_details(match_id)
-            api_calls += 1
-            if not match_data or "picks_bans" not in match_data:
-                if verbose:
-                    click.echo(f"Skipping match {match_id}: no picks_bans data.")
-                continue
-
-            if match_type.lower() == "pub" and pub_rank is not None:
-                if match_data.get("rank_tier") != pub_rank:
-                    if verbose:
-                        click.echo(f"Skipping match {match_id}: rank_tier {match_data.get('rank_tier')} does not equal {pub_rank}.")
-                    continue
-
-            radiant_picks, dire_picks, winner = extract_draft(match_data, hero_map)
-            if radiant_picks is None:
-                if verbose:
-                    click.echo(f"Skipping match {match_id}: invalid draft (not exactly 5 picks per team).")
-                continue
-
-            start_time = match_data.get("start_time")
-            match_date = pd.to_datetime(start_time, unit="s") if start_time else None
-
-            records.append({
-                "date": match_date,
-                "match_id": match_id,
-                "match_type": match_type.lower(),
-                "winner": winner,
-                "radiant_draft": radiant_picks,
-                "dire_draft": dire_picks,
-            })
-            if verbose:
-                found = len(records)
-                percent = found / limit * 100
-                click.echo(f"Progress: {found}/{limit} valid matches found ({percent:.1f}%).")
-            time.sleep(delay)
     
     if records:
         df_new = pd.DataFrame(records)

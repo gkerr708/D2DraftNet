@@ -27,6 +27,7 @@ HEROS_ = ['Anti-Mage', 'Axe', 'Bane', 'Bloodseeker', 'Crystal Maiden', 'Drow Ran
          'Elder Titan', 'Legion Commander', 'Techies', 'Ember Spirit', 'Earth Spirit', 'Underlord', 'Terrorblade', 'Phoenix', 'Oracle', 'Winter Wyvern', 
          'Arc Warden', 'Monkey King', 'Dark Willow', 'Pangolier', 'Grimstroke', 'Hoodwink', 'Void Spirit', 'Snapfire', 'Mars', 'Ringmaster', 'Dawnbreaker', 
          'Marci', 'Primal Beast', 'Muerta', 'Kez']
+
 HEROS = sorted(HEROS_)
 DIRE_HEROS = sorted(["Dire_" + hero for hero in HEROS])
 RADIANT_HEROS = sorted(["Radiant_" + hero for hero in HEROS])
