@@ -99,4 +99,4 @@ def main(N_matches: int):
         print(f"Saved {len(df_new)} matches to {parquet_file}.")
 
 if __name__ == "__main__":
-    main(100)
+    main(10_000)
