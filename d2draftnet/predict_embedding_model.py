@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
-from embedding_model import DraftPredictionNN, load_model
-from config import MODEL_PATH, HERO_MAP, EMBEDDING_DIM, LAYERS, NUM_HEROS
+from d2draftnet.embedding_model import DraftPredictionNN, load_model
+from d2draftnet.config import MODEL_PATH, HERO_MAP, EMBEDDING_DIM, LAYERS, NUM_HEROS
 
 def get_hero_indices(hero_list):
     """Convert hero names to model input indices."""

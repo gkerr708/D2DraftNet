@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset
-from .config import HERO_MAP
+from d2draftnet.config import HERO_MAP
 
 # Dataset class
 class Dota2DraftDataset(Dataset):

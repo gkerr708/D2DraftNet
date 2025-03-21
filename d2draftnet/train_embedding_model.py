@@ -1,15 +1,16 @@
-import torch
-import torch.optim as optim
-import numpy as np
 from sklearn.model_selection import train_test_split # type: ignore
 from dataclasses import dataclass, field
 from torch.utils.data import DataLoader
 from sklearn.metrics import accuracy_score
-import torch.nn as nn
 from pathlib import Path
-from config import HEROS, MATCH_DATA_PATH, TRAINED_MODEL_DIRECTORY, MODEL_PATH, load_data
-from embedding_model import Dota2DraftDataset, DraftPredictionNN
 import matplotlib.pyplot as plt
+import torch.optim as optim
+import torch.nn as nn
+import numpy as np
+import torch
+
+from d2draftnet.config import HEROS, MATCH_DATA_PATH, MODEL_PATH, MODEL_PATH, load_data
+from d2draftnet.embedding_model import Dota2DraftDataset, DraftPredictionNN
 
 @dataclass
 class ModelTraining:
@@ -20,7 +21,7 @@ class ModelTraining:
     epochs: int
     layers: list 
     train_test_split: float
-    trained_models_dir: Path = TRAINED_MODEL_DIRECTORY
+    trained_models_dir: Path = MODEL_PATH.parent
 
     def __post_init__(self):
         # Check if CUDA is available and set device
@@ -42,7 +43,7 @@ class ModelTraining:
         print(f"Training from N = {len(data):,} samples")
 
         # Convert Winner column to binary labels
-        labels = data["winner"].apply(lambda x: 1 if x == "Radiant" else 0).values
+        labels = data["result"].apply(lambda x: 1 if x == "Radiant Victory" else 0).values
 
         # Split into training and testing datasets
         self.train_data, self.test_data, self.y_train, self.y_test = train_test_split(

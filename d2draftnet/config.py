@@ -2,7 +2,8 @@ from pathlib import Path
 import pandas as pd
 
 # Define the current patch
-current_patch_for_model = "7_37e"
+#current_patch_for_model = "7_37e"
+current_patch_for_model = "test"
 current_patch_for_parquet = "7_38b"
 
 #KEY = "21bcc3a2-28fc-4331-a1ad-5e68401b8f71"
