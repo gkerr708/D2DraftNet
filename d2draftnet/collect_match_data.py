@@ -98,5 +98,7 @@ def main(N_matches: int):
         df_new.to_parquet(parquet_file, index=False)
         print(f"Saved {len(df_new)} matches to {parquet_file}.")
 
+    print(f"Total matches: {len(existing_ids)}")
+
 if __name__ == "__main__":
-    main(10_000)
+    main(10)
