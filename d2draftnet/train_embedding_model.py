@@ -91,8 +91,8 @@ class ModelTraining:
         for epoch in range(self.epochs):
             self.model.train()
             for radiant_team, dire_team, labels in self.train_loader:
-                radiant_team = nn.utils.rnn.pad_sequence(radiant_team, batch_first=True, padding_value=0)
-                dire_team = nn.utils.rnn.pad_sequence(dire_team, batch_first=True, padding_value=0)
+                radiant_team = torch.stack(radiant_team)
+                dire_team = torch.stack(dire_team)
                 labels = torch.stack(labels)
 
                 # Forward pass
