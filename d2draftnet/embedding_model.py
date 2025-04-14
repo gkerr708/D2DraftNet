@@ -1,12 +1,13 @@
 import torch
 import torch.nn as nn
+import pandas as pd
 from torch.utils.data import Dataset
 from d2draftnet.config import HERO_MAP
 
 # Dataset class
 class Dota2DraftDataset(Dataset):
     def __init__(self, data, labels):
-        self.data: list[dict] = data
+        self.data: pd.DataFrame = data
         self.labels = torch.tensor(labels, dtype=torch.float32).view(-1, 1)
 
     def __len__(self):
