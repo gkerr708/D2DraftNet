@@ -1,7 +1,7 @@
 import requests
 import pandas as pd
 from bs4 import BeautifulSoup
-from pathlib import Path
+from typing import Any
 from datetime import date
 from tqdm import tqdm  # For progress bar
 
@@ -31,8 +31,8 @@ def main(N_matches: int):
                 break
 
             soup = BeautifulSoup(response.text, "html.parser")
-            table = soup.find("table")
-            if table:
+            table: Any = soup.find("table")
+            if table and hasattr(table, "find_all"):
                 rows = table.find_all("tr")
                 # Skip header row
                 for tr in rows[1:]:
@@ -101,4 +101,4 @@ def main(N_matches: int):
     print(f"Total matches: {len(existing_ids)}")
 
 if __name__ == "__main__":
-    main(10_000)
+    main(3)

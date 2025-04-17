@@ -46,7 +46,7 @@ class DraftPredictionNN(nn.Module):
         self.fc = nn.Sequential(
             nn.Linear(embedding_dim * 2, layers[0]),  # Increased the size of the first layer
             nn.ReLU(),
-            nn.Dropout(p=dropout_prob),  # Dropout to reduce overfitting
+            nn.Dropout(p=dropout_prob),  # Dropout to reduce over-fitting
             nn.Linear(layers[0], layers[1]),         # Added another hidden layer
             nn.ReLU(),
             nn.Dropout(p=dropout_prob),  # Another dropout layer
@@ -55,11 +55,11 @@ class DraftPredictionNN(nn.Module):
         )
 
     def forward(self, radiant_team, dire_team):
-        # Compute team embeddings by averaging hero embeddings
+        # Compute team embedding by averaging hero embedding
         radiant_embed = torch.mean(self.embedding(radiant_team), dim=1)  # Shape [batch_size, embedding_dim]
         dire_embed = torch.mean(self.embedding(dire_team), dim=1)        # Shape [batch_size, embedding_dim]
         
-        # Concatenate radiant and dire embeddings along the last dimension
+        # Concatenate radiant and dire embedding along the last dimension
         combined = torch.cat([radiant_embed, dire_embed], dim=1)  # Shape [batch_size, embedding_dim * 2]
         
         # Pass through fully connected layers

@@ -1,15 +1,16 @@
-from sklearn.model_selection import train_test_split # type: ignore
-from dataclasses import dataclass, field
+from sklearn.model_selection import train_test_split
+from dataclasses import dataclass
 from torch.utils.data import DataLoader
 from sklearn.metrics import accuracy_score
 from pathlib import Path
+from typing import Any, Optional, List
 import matplotlib.pyplot as plt
 import torch.optim as optim
 import torch.nn as nn
 import numpy as np
 import torch
 
-from d2draftnet.config import HEROS, MATCH_DATA_PATH, MODEL_PATH, MODEL_PATH, load_data
+from d2draftnet.config import HEROS, MATCH_DATA_PATH, MODEL_PATH, load_data
 from d2draftnet.embedding_model import Dota2DraftDataset, DraftPredictionNN
 
 @dataclass
@@ -85,11 +86,13 @@ class ModelTraining:
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
 
 
-    def train_model(self, show_plot: bool = True, verbose: bool =True, return_data: bool = False) -> list:
+    def train_model(self, show_plot: bool=True, verbose: bool=True, return_data: bool=False) -> Optional[List]:
         """Train the model."""
         accuracy_values = []
         for epoch in range(self.epochs):
             self.model.train()
+            accuracy: float = 0.0
+            loss: Any = 0.0
             for radiant_team, dire_team, labels in self.train_loader:
                 radiant_team = torch.stack(radiant_team)
                 dire_team = torch.stack(dire_team)
@@ -152,7 +155,7 @@ class ModelTraining:
                 all_preds.extend(predictions.cpu().numpy())
                 all_labels.extend(labels.cpu().numpy())
 
-        accuracy = accuracy_score(all_labels, all_preds)
+        accuracy: Any = accuracy_score(all_labels, all_preds)
         if verbose:
             print(f"Test Accuracy: {accuracy:.4f}")
         if save_bool:
@@ -177,8 +180,8 @@ class ModelTraining:
 if __name__ == "__main__":
 
     # Define the base parameters
-    embedding_dim = 3; dropout_prob = 1e-3; batch_size = 2**9
-    learning_rate = 5e-4; epochs = 50; test_train_split = 0.2
+    embedding_dim = 3; dropout_prob = 1e-3; batch_size = 2**9 # noqa: E702
+    learning_rate = 5e-4; epochs = 50; test_train_split = 0.2 # noqa: E702
     layers = [32, 16]
 
     dict_of_param_dicts = {
@@ -193,8 +196,14 @@ if __name__ == "__main__":
         },
     }
 
+    # Add more models to the dictionary
     train_accuracy_list = []
     test_accuracy_list = []
+
+    # Initialize N_train and N_test
+    N_train = 0
+    N_test = 0
+    
     for name, params in dict_of_param_dicts.items():
         print(f'Training model with parameters: {params}')
         # Initialize the ModelTraining class
@@ -212,13 +221,22 @@ if __name__ == "__main__":
         N_test = len(trainer.test_data)
 
         # Train the model
-        train_accuracy = trainer.train_model(show_plot=True, verbose=True, return_data=True)
+        train_accuracy: Optional[List[Any]] = trainer.train_model(show_plot=True, verbose=True, return_data=True)
+
+        if train_accuracy is None:
+            print("Train accuracy is None!")
+            continue
 
         # Test the model
         test_accuracy = trainer.evaluate_model(verbose=True, save_bool=True)
 
+        if len(train_accuracy) < 5:
+            print("Train accuracy is too short!")
+            continue
+
+        mean_window = train_accuracy[-4:-1]
         # Save the accuracy
-        mean_final_train_accuracy = np.mean(train_accuracy[-4:-1])
+        mean_final_train_accuracy = np.mean(mean_window) # type: ignore
         train_accuracy_list.append(mean_final_train_accuracy)
         test_accuracy_list.append(test_accuracy)
 
