@@ -1,9 +1,9 @@
 import requests
 import pandas as pd
 from bs4 import BeautifulSoup
-from typing import Any
+from typing import Any, List
 from datetime import date
-from tqdm import tqdm  # For progress bar
+from tqdm import tqdm
 
 from d2draftnet.config import MATCH_DATA_PATH
 
@@ -11,7 +11,7 @@ def main(N_matches: int):
     base_url = "https://www.dotabuff.com/matches?page={}"
     headers = {"User-Agent": "Mozilla/5.0"}
     
-    matches_list = []
+    matches_list: List[Any] = []
 
     # Load existing dataset and create a set of existing match IDs
     parquet_file = MATCH_DATA_PATH
