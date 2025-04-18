@@ -10,9 +10,7 @@ def main():
 
     print(f"Loaded {len(df)} matches from {MATCH_DATA_PATH}.")
     print()
-    #print("\nMatch Data (first 10 rows):")
-    #print(df.head(10))
-    sample_match = df.iloc[5]
+    sample_match = df.iloc[1]
     for key, value in sample_match.items():
         print(f"{key}: {value}")
 
