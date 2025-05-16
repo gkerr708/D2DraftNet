@@ -1,11 +1,17 @@
-import requests
-import pandas as pd
-from bs4 import BeautifulSoup
-from typing import Any, List
-from datetime import date
-from tqdm import tqdm
+# ========================================================
+# collect_match_data.py
+# ========================================================
+# This script scrapes Dota 2 match data from Dotabuff and saves it to a parquet file.
+# Make sure to update the config.py with the correct patch version.
 
-from d2draftnet.config import MATCH_DATA_PATH
+import requests # type: ignore
+import pandas as pd # type: ignore
+from bs4 import BeautifulSoup # type: ignore
+from typing import Any, List # type: ignore
+from datetime import date
+from tqdm import tqdm # type: ignore
+
+from .config import MATCH_DATA_PATH
 
 def main(N_matches: int):
     base_url = "https://www.dotabuff.com/matches?page={}"
