@@ -107,4 +107,4 @@ def main(N_matches: int):
     print(f"Total matches: {len(existing_ids)}")
 
 if __name__ == "__main__":
-    main(3)
+    main(1000)
