@@ -1,4 +1,5 @@
 from sklearn.model_selection import train_test_split
+from scipy.stats import binom
 from dataclasses import dataclass
 from torch.utils.data import DataLoader
 from sklearn.metrics import accuracy_score
@@ -10,8 +11,8 @@ import torch.nn as nn
 import numpy as np
 import torch
 
-from d2draftnet.config import HEROS, MATCH_DATA_PATH, MODEL_PATH, load_data
-from d2draftnet.embedding_model import Dota2DraftDataset, DraftPredictionNN
+from .config import HEROS, MATCH_DATA_PATH, MODEL_PATH, load_data
+from .embedding_model import Dota2DraftDataset, DraftPredictionNN
 
 @dataclass
 class ModelTraining:
@@ -180,8 +181,12 @@ class ModelTraining:
 if __name__ == "__main__":
 
     # Define the base parameters
-    embedding_dim = 3; dropout_prob = 1e-3; batch_size = 2**9 # noqa: E702
-    learning_rate = 5e-4; epochs = 50; test_train_split = 0.2 # noqa: E702
+    embedding_dim = 3
+    dropout_prob = 1e-3
+    batch_size = 64
+    learning_rate = 5e-4
+    epochs = 10
+    test_train_split = 0.2
     layers = [32, 16]
 
     dict_of_param_dicts = {
@@ -240,8 +245,6 @@ if __name__ == "__main__":
         train_accuracy_list.append(mean_final_train_accuracy)
         test_accuracy_list.append(test_accuracy)
 
-    from scipy.stats import binom
-
     # Plot the binomial distributions
     trial_names = list(dict_of_param_dicts.keys())
 
@@ -290,3 +293,4 @@ if __name__ == "__main__":
     # Adjust layout and show the plots
     plt.tight_layout()
     plt.show()
+    #plt.savefig("train_test_accuracy.jpg")

@@ -1,4 +1,4 @@
-from d2draftnet.config import MATCH_DATA_PATH
+from .config import MATCH_DATA_PATH
 import pandas as pd
 
 def main():
@@ -9,7 +9,7 @@ def main():
         return
 
     print(f"Loaded {len(df)} matches from {MATCH_DATA_PATH}.")
-    print()
+    print("Sample match data:\n")
     sample_match = df.iloc[1]
     for key, value in sample_match.items():
         print(f"{key}: {value}")
