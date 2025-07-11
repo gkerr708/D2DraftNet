@@ -1,5 +1,6 @@
 from pathlib import Path
 import pandas as pd
+import click as ck
 
 # Define the current patch
 current_patch_for_model = "7_39b" 
@@ -12,7 +13,7 @@ KEY = None
 # Smart thing to write the same thing twice.
 PROJECT_DIR = Path(__file__).parent.parent.parent
 MATCH_DATA_PATH = PROJECT_DIR / "data" / f"{current_patch_for_parquet}_match_data.parquet"
-MODEL_PATH = PROJECT_DIR / "d2draftnet" / "models" / f"{current_patch_for_model}_model.pth"
+MODEL_PATH = PROJECT_DIR / "src" / "d2draftnet" / "models" / f"{current_patch_for_model}_model.pth"
 
 # Define the list of heroes
 HEROS_ = ['Anti-Mage', 'Axe', 'Bane', 'Bloodseeker', 'Crystal Maiden', 'Drow Ranger', 'Earthshaker', 'Juggernaut', 'Mirana', 'Morphling', 'Shadow Fiend', 
@@ -46,4 +47,14 @@ def load_data():
 
 if __name__ == "__main__":
     directories = [PROJECT_DIR, MATCH_DATA_PATH, MODEL_PATH]
-    _= [print(f"{d.exists()} - {d}") for d in directories]
+    _= [
+        ck.secho(f"OK: {d}", fg="green") 
+        if d.exists() 
+        else ck.secho(f"Missing: {d}", fg="red")
+        for d in directories
+    ]
+
+
+
+
+
