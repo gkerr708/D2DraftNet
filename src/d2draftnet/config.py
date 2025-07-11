@@ -4,7 +4,7 @@ import click as ck
 
 # Define the current patch
 current_patch_for_model = "7_39b" 
-current_patch_for_parquet = "7_39b"
+current_patch_for_parquet = "7_39c"
 
 #KEY = "21bcc3a2-28fc-4331-a1ad-5e68401b8f71"
 KEY = None
